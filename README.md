@@ -112,9 +112,12 @@ Diaggram batang di atas menampilkan perbandingan performa dari ketiga model:
 
 
 ## Prediksi vs aktual menunjukkan sebaran titik yang rapat terhadap garis ideal pada Linear Regression.
-![image](https://github.com/user-attachments/assets/b020f890-9d39-4c64-ae06-d2d2ed41aa01)
 
 ## 🔍 Visualisasi Prediksi vs Aktual
+![image](https://github.com/user-attachments/assets/903bfad2-225f-4e24-8323-f69a30936626)
+![image](https://github.com/user-attachments/assets/e2c8c8bf-40fb-4d1d-bcc5-1ae90c2cae33)
+![image](https://github.com/user-attachments/assets/6d657ebc-8f15-4887-a42e-3b09cc5c1052)
+
 
 Untuk mengevaluasi kualitas prediksi tiap model, disini menampilkan grafik sebaran antara **nilai aktual** dan **nilai prediksi**. Garis merah putus-putus merepresentasikan garis ideal (prediksi = aktual).
 
@@ -125,6 +128,10 @@ Jika titik-titik prediksi mendekati garis ini, maka model berhasil melakukan pre
 ---
 
 ## 🧮 Distribusi Error (Residual)
+![image](https://github.com/user-attachments/assets/8ee40ffd-2730-42db-af50-624f3c848c25)
+![image](https://github.com/user-attachments/assets/37a61055-cafa-4e9a-bd6c-1ab73f57ba3e)
+![image](https://github.com/user-attachments/assets/3312d501-7995-4100-95c5-eacb877bbdb2)
+
 
 Distribusi residual menggambarkan selisih antara nilai aktual dan prediksi. Distribusi yang **berbentuk simetris dan mendekati nol** menandakan bahwa model tidak bias dan performanya konsisten.
 
