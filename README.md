@@ -26,55 +26,193 @@ Dataset yang digunakan adalah data historis saham PT Telkom Indonesia (TLKM) dar
 
 📊 **Sumber dataset**: [Telecommunications Company Stock Price – Kaggle](https://www.kaggle.com/datasets/brmil07/telecommunications-company-stock-price)
 
-Dataset berisi:
+### 🗂️ Struktur Dataset
 
-- `Date`: Tanggal transaksi
-- `Open`: Harga pembukaan
-- `High`: Harga tertinggi
-- `Low`: Harga terendah
-- `Close`: Harga penutupan
-- `Adj Close`: Harga penutupan yang disesuaikan
-- `Volume`: Jumlah saham yang diperdagangkan
+- **Jumlah baris:** 4705  
+- **Jumlah kolom:** 7  
+- Dataset ini terdiri dari data historis harga saham harian TLKM, dengan fitur-fitur sebagai berikut:
 
-EDA (Exploratory Data Analysis) menunjukkan:
-- Harga saham menunjukkan distribusi multimodal, mencerminkan beberapa fase tren harga.
-  ![image](https://github.com/user-attachments/assets/3f366175-8c40-4ab2-8eb7-979c33bef60d)
+| Fitur        | Deskripsi |
+|--------------|-----------|
+| `Date`       | Tanggal perdagangan (masih bertipe *object*, perlu dikonversi ke *datetime*) |
+| `Open`       | Harga pembukaan saham pada hari tersebut |
+| `High`       | Harga tertinggi saham pada hari tersebut |
+| `Low`        | Harga terendah saham pada hari tersebut |
+| `Close`      | Harga penutupan saham pada hari tersebut |
+| `Adj Close`  | Harga penutupan yang telah disesuaikan untuk dividen dan *stock split* |
+| `Volume`     | Jumlah saham yang diperdagangkan pada hari tersebut |
 
-1.  **Distribusi harga (`Open`, `High`, `Low`, `Close`) menunjukkan pola multimodal**, menandakan adanya beberapa fase harga dominan sepanjang waktu. Ini bisa mencerminkan perubahan tren atau siklus pasar selama periode data.
-2. Harga-harga cenderung terkonsentrasi pada dua rentang besar: sekitar **1500–2000** dan **3500–4000**, mengindikasikan dua fase utama harga saham TLKM.
-3. **Distribusi `Volume` sangat skewed ke kanan** (right-skewed), menunjukkan sebagian besar volume perdagangan berada di angka rendah hingga menengah, sementara terdapat beberapa hari dengan volume ekstrem tinggi.
+---
+
+### 🔎 Kondisi Data
+
+**1. Missing Values:**
+
+- Terdapat **1 baris** dengan nilai kosong (*missing*) pada **semua kolom numerik** (`Open`, `High`, `Low`, `Close`, `Adj Close`, dan `Volume`).
+- Kolom `Date` **tidak memiliki nilai kosong**.
+- Baris dengan nilai kosong ini akan ditangani pada tahap *data preprocessing*.
+
+**2. Data Duplikat:**
+
+- Tidak ditemukan baris duplikat dalam dataset.
+
+**3. Outlier:**
+
+- Dari hasil eksplorasi awal, ditemukan beberapa outlier pada kolom `Volume` (terlihat sebagai lonjakan yang tidak lazim dalam volume perdagangan).
+- Outlier akan dianalisis lebih lanjut pada tahap eksplorasi data (EDA) dan *preprocessing* untuk menentukan apakah perlu ditangani atau tidak.
 
 
-- Korelasi tinggi antar fitur harga (`Open`, `High`, `Low`, `Close`, `Adj Close`).
-![image](https://github.com/user-attachments/assets/eef32346-ff3c-406e-a65a-c5663102601e)
 
-1. Terlihat hubungan **linear sangat kuat** antara fitur-fitur harga saham (`Open`, `High`, `Low`, `Close`) — konsisten dengan hasil korelasi sebelumnya.
-2. Penyebaran data pada scatter plot membentuk garis diagonal rapat, menandakan bahwa nilai-nilai harga bergerak sangat beriringan antar fitur.
-3. Distribusi pada histogram diagonal (untuk masing-masing fitur) kembali menunjukkan **pola multimodal**, menguatkan asumsi bahwa terdapat beberapa periode atau fase harga yang berbeda dalam data historis TLKM.
-4. **Implikasi untuk pemodelan:** karena fitur saling berkorelasi tinggi, **menggunakan salah satu dari fitur tersebut, seperti `Close`, sudah cukup merepresentasikan dinamika harga untuk prediksi ke depan**.
+## 📊 Exploratory Data Analysis (EDA)
+
+### 1. Distribusi Harga Saham (`Open`, `High`, `Low`, `Close`)
+
+![Distribusi Harga](https://github.com/user-attachments/assets/3f366175-8c40-4ab2-8eb7-979c33bef60d)
+
+- Distribusi dari keempat harga saham (`Open`, `High`, `Low`, `Close`) menunjukkan pola **multimodal**. Hal ini mencerminkan bahwa selama periode pengamatan, harga saham TLKM mengalami beberapa **fase tren berbeda**, kemungkinan akibat faktor ekonomi makro, perubahan regulasi, atau performa perusahaan.
+- Teridentifikasi dua rentang harga yang paling sering muncul:
+  - Sekitar **Rp1.500–2.000**
+  - Sekitar **Rp3.500–4.000**
+- Kedua rentang ini menunjukkan dua fase utama pergerakan harga TLKM dalam jangka panjang: fase harga rendah dan fase harga tinggi.
+
+---
+
+### 2. Korelasi Antar Fitur Harga
+
+![Korelasi Harga](https://github.com/user-attachments/assets/eef32346-ff3c-406e-a65a-c5663102601e)
+
+- Terdapat **korelasi sangat tinggi (hampir sempurna)** antara fitur-fitur harga (`Open`, `High`, `Low`, `Close`, dan `Adj Close`), terlihat dari scatter plot yang membentuk garis diagonal rapat.
+- Histogram pada diagonal plot kembali menunjukkan **distribusi multimodal**, konsisten dengan analisis sebelumnya.
+- **Implikasi untuk modeling:**
+  - Karena fitur-fitur harga sangat berkorelasi, cukup menggunakan salah satu fitur sebagai representasi harga. Biasanya, **`Close` price** dipilih karena paling umum digunakan sebagai acuan harga akhir harian.
+  - Reduksi fitur (feature selection) bisa membantu menghindari multikolinearitas dalam model.
+
+---
+
+### 3. Distribusi Volume Perdagangan
+
+![Distribusi Volume](https://github.com/user-attachments/assets/282055b3-7ab2-49c2-8c50-e9a8224d3d36)
+
+- Distribusi `Volume` perdagangan bersifat **right-skewed (skewed ke kanan)**:
+  - Sebagian besar volume perdagangan berada pada kisaran rendah hingga menengah.
+  - Terdapat **outlier** berupa hari-hari dengan volume perdagangan yang jauh lebih tinggi dibanding rata-rata.
+- **Korelasi antara `Volume` dan harga relatif lemah**, menunjukkan bahwa lonjakan volume tidak selalu beriringan dengan perubahan harga.
+- **Outlier pada `Volume`** bisa menjadi indikator adanya peristiwa tidak biasa di pasar, seperti aksi korporasi, berita besar, atau tekanan beli/jual yang ekstrem.
+
+---
+
+### 🧠 Ringkasan EDA
+
+- Harga saham TLKM menunjukkan pola **multifase** dengan distribusi multimodal.
+- Terdapat **korelasi sangat tinggi antar fitur harga**, memungkinkan penggunaan satu fitur utama untuk pemodelan.
+- `Volume` mengandung **outlier signifikan** dan distribusinya sangat skewed, tetapi tidak berkorelasi kuat dengan harga.
 
 
 
-- Volume perdagangan tidak berkorelasi kuat dengan harga, namun mengandung outlier yang mencerminkan aktivitas tidak biasa.
-![image](https://github.com/user-attachments/assets/282055b3-7ab2-49c2-8c50-e9a8224d3d36)
+## 🧹 Data Preparation
 
-## Data Preparation
+Langkah-langkah berikut dilakukan untuk menyiapkan data sebelum proses pemodelan. Semua teknik disusun sesuai urutan eksekusi di notebook:
 
-- Mengubah tipe data `Date` menjadi datetime.
-- Menghapus baris dengan nilai kosong (missing values).
-- Menyortir data berdasarkan tanggal.
-- Menggunakan PCA untuk mereduksi dimensi data agar lebih efisien dalam pemodelan.
-- Split data menjadi training (80%) dan testing (20%).
+---
+
+### 1. Menghapus Kolom Non-Numerik (`Date`)
+- Kolom `Date` dihapus dari dataset karena bersifat non-numerik dan tidak digunakan sebagai fitur dalam model prediksi.
+```python
+df_clean = df.drop(columns=['Date'])
+```
+
+### 2. Menghapus Baris dengan Target (Close) yang Kosong
+- Baris yang memiliki nilai kosong pada kolom Close dihapus, karena target yang hilang tidak bisa digunakan dalam supervised learning.
+```python
+df_clean = df_clean.dropna(subset=['Close'])
+```
+
+### 3. Memisahkan Fitur dan Target
+- Dataset dipisahkan menjadi:
+- X: fitur input (tanpa kolom Close)
+- y: target variabel (Close)
+```python
+X = df_clean.drop(columns=['Close'])
+y = df_clean['Close']
+```
+
+### 4. Imputasi Nilai Kosong
+- Menggunakan SimpleImputer dengan strategi mean untuk mengisi nilai kosong pada fitur input X.
+```python
+imputer = SimpleImputer(strategy='mean')
+X_imputed = imputer.fit_transform(X)
+```
+### 5. Standardisasi Fitur
+- Menggunakan StandardScaler untuk menstandardisasi fitur agar memiliki mean = 0 dan standar deviasi = 1. Ini penting untuk PCA dan banyak algoritma machine learning.
+```python
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X_imputed)
+```
+
+### 6. Reduksi Dimensi dengan PCA
+- Menggunakan Principal Component Analysis (PCA) untuk menurunkan dimensi data sambil mempertahankan 90% variansi total.
+- Tujuannya adalah menyederhanakan data, mengurangi noise, dan mempercepat pelatihan model.
+```python
+pca = PCA(n_components=0.9, random_state=42)
+X_pca = pca.fit_transform(X_scaled)
+```
+- Jumlah komponen utama yang dihasilkan:
+```python
+print(f"Jumlah komponen PCA yang dipilih: {pca.n_components_}")
+Jumlah komponen PCA yang dipilih: 2
+```
 
 ## Modeling
+Dalam tahap ini, tiga algoritma machine learning digunakan untuk membangun model prediktif terhadap harga penutupan saham (`Close`). Setiap algoritma memiliki kelebihan dan mekanisme kerja yang berbeda. Berikut penjelasannya:
 
-Tiga algoritma machine learning digunakan:
+### 1. Linear Regression
 
-1. **Linear Regression**: model sederhana berbasis hubungan linier antar variabel.
-2. **Random Forest Regressor**: model ensemble berbasis decision trees.
-3. **XGBoost Regressor**: model boosting yang sangat populer untuk prediksi tabular.
+Linear Regression adalah algoritma statistik yang digunakan untuk memodelkan hubungan linier antara satu atau lebih fitur input (`X`) dengan target output (`y`). Model ini berusaha mencari garis lurus terbaik yang meminimalkan selisih kuadrat antara prediksi dan nilai aktual (Least Squares Error).
 
-### Hasil Evaluasi:
+- Parameter yang digunakan: default dari `LinearRegression()`
+
+```python
+lr_model = LinearRegression()
+```
+
+### 2. Random Forest Regressor
+Random Forest adalah algoritma ensemble yang membangun banyak pohon keputusan (decision tree) secara acak, lalu menggabungkan hasil prediksi dari seluruh pohon untuk menghasilkan prediksi akhir (biasanya dengan rata-rata dalam regresi). Ini membuat model lebih stabil dan mengurangi overfitting.
+
+Parameter yang digunakan:
+- n_estimators=100: membuatn 100 pohon keputusan.
+- random_state=42: memastikan hasil replikasi yang konsisten.
+```python
+rf_model = RandomForestRegressor(n_estimators=100, random_state=42)
+```
+
+### 3. XGBoost Regressor
+XGBoost (Extreme Gradient Boosting) adalah algoritma boosting berbasis gradient descent. Model dibangun secara bertahap dengan setiap pohon baru berfokus untuk memperbaiki kesalahan prediksi dari pohon sebelumnya. XGBoost dikenal karena performa tinggi dan efisiensinya dalam menangani data tabular.
+
+Parameter yang digunakan:
+- objective='reg:squarederror': fungsi loss regresi berbasis error kuadrat.
+- random_state=42: memastikan hasil yang konsisten.
+```python
+xgb_model = xgb.XGBRegressor(objective='reg:squarederror', random_state=42)
+```
+
+
+## Evaluasi Model
+Setelah pelatihan, performa masing-masing model dievaluasi menggunakan tiga metrik:
+- RMSE (Root Mean Squared Error): akar dari rata-rata kuadrat kesalahan.
+- MAE (Mean Absolute Error): rata-rata nilai absolut dari kesalahan prediksi.
+- R² Score: seberapa baik model menjelaskan variasi data.
+```python
+def evaluate(y_true, y_pred, model_name):
+    rmse = np.sqrt(mean_squared_error(y_true, y_pred))
+    mae = mean_absolute_error(y_true, y_pred)
+    r2 = r2_score(y_true, y_pred)
+    print(f"{model_name} Performance:")
+    print(f"RMSE: {rmse:.4f}")
+    print(f"MAE: {mae:.4f}")
+    print(f"R2: {r2:.4f}\n")
+    return rmse, mae, r2
+```
+### Hasil Evaluasi Model
 
 | Model              | RMSE     | MAE      | R²     |
 |--------------------|----------|----------|--------|
@@ -82,66 +220,70 @@ Tiga algoritma machine learning digunakan:
 | Random Forest      | 55.2107  | 38.2549  | 0.9976 |
 | XGBoost            | 56.6222  | 39.6326  | 0.9974 |
 
-Model terbaik berdasarkan RMSE adalah **Linear Regression**.
+📌 Model terbaik berdasarkan RMSE: **Linear Regression.**
 
-## Evaluation
+📌 Model dengan MAE terkecil: **Random Forest.**
 
-![image](https://github.com/user-attachments/assets/75f3f6a2-29f6-445e-996b-8a346d6427f4)
 
 ## 📈 Perbandingan Performa Model
 
-Setelah semua model dilatih dan dievaluasi, terdapat **tabel perbandingan metrik performa** untuk melihat model mana yang paling optimal.
-
-Tiga metrik utama yang dibandingkan:
-- **RMSE (Root Mean Squared Error)** – Semakin kecil, semakin baik.
-- **MAE (Mean Absolute Error)** – Selisih absolut rata-rata, semakin kecil lebih akurat.
-- **R² Score (Koefisien Determinasi)** – Semakin mendekati 1, semakin baik.
-
-
-### Visualisasi Performa Model
-
-Diaggram batang di atas menampilkan perbandingan performa dari ketiga model:
+Tiga metrik utama yang dibandingkan antar model:
 
 - **RMSE:** Mengukur rata-rata error dalam satuan harga saham.
-- **MAE:** Menunjukkan rata-rata deviasi absolut prediksi.
-- **R²:** Mengindikasikan seberapa baik model menjelaskan variasi data target.
+- **MAE:** Mengukur rata-rata deviasi absolut dari prediksi.
+- **R² Score:** Mengindikasikan seberapa baik model menjelaskan variasi pada target.
 
-> Dari visualisasi ini terlihat bahwa **ketiga model memiliki performa yang sangat mirip**, dengan Random Forest sedikit unggul di MAE (kesalahan absolut terkecil).
+### 🖼️ Visualisasi Perbandingan Metrik
+
+> Diagram batang berikut menunjukkan perbandingan RMSE, MAE, dan R² antar model:
+
+![Perbandingan Metrik Model](https://github.com/user-attachments/assets/75f3f6a2-29f6-445e-996b-8a346d6427f4)
+
+- Ketiga model memiliki performa yang sangat mirip.
+- **Random Forest unggul sedikit pada MAE.**
 
 ---
-
-
-## Prediksi vs aktual menunjukkan sebaran titik yang rapat terhadap garis ideal pada Linear Regression.
 
 ## 🔍 Visualisasi Prediksi vs Aktual
-![image](https://github.com/user-attachments/assets/903bfad2-225f-4e24-8323-f69a30936626)
-![image](https://github.com/user-attachments/assets/e2c8c8bf-40fb-4d1d-bcc5-1ae90c2cae33)
-![image](https://github.com/user-attachments/assets/6d657ebc-8f15-4887-a42e-3b09cc5c1052)
 
+Grafik scatter di bawah memperlihatkan seberapa dekat prediksi model terhadap nilai aktual. Garis merah putus-putus menandai prediksi sempurna (`prediksi = aktual`).
 
-Untuk mengevaluasi kualitas prediksi tiap model, disini menampilkan grafik sebaran antara **nilai aktual** dan **nilai prediksi**. Garis merah putus-putus merepresentasikan garis ideal (prediksi = aktual).
+### 📊 Linear Regression
+![Linear Regression](https://github.com/user-attachments/assets/903bfad2-225f-4e24-8323-f69a30936626)
 
-Jika titik-titik prediksi mendekati garis ini, maka model berhasil melakukan prediksi yang baik.
+### 🌲 Random Forest
+![Random Forest](https://github.com/user-attachments/assets/e2c8c8bf-40fb-4d1d-bcc5-1ae90c2cae33)
 
-> Hasil Linear Regression menunjukkan sebaran titik yang sangat rapat dengan garis ideal, menandakan akurasi tinggi dalam memodelkan hubungan antara fitur-fitur dan harga saham.
+### ⚡ XGBoost
+![XGBoost](https://github.com/user-attachments/assets/6d657ebc-8f15-4887-a42e-3b09cc5c1052)
 
----
-
-## 🧮 Distribusi Error (Residual)
-![image](https://github.com/user-attachments/assets/8ee40ffd-2730-42db-af50-624f3c848c25)
-![image](https://github.com/user-attachments/assets/37a61055-cafa-4e9a-bd6c-1ab73f57ba3e)
-![image](https://github.com/user-attachments/assets/3312d501-7995-4100-95c5-eacb877bbdb2)
-
-
-Distribusi residual menggambarkan selisih antara nilai aktual dan prediksi. Distribusi yang **berbentuk simetris dan mendekati nol** menandakan bahwa model tidak bias dan performanya konsisten.
-
-Semua model menunjukkan distribusi residual yang cukup simetris, namun **Linear Regression dan Random Forest** cenderung memiliki distribusi error yang lebih sempit.
+> Sebaran titik yang rapat terhadap garis menunjukkan prediksi yang akurat.  
+> **Linear Regression** menunjukkan distribusi paling rapat.
 
 ---
 
-## Insight Bisnis
+## 📉 Distribusi Error (Residual)
 
-- Model Linear Regression memberikan performa terbaik dalam hal RMSE dan kestabilan.
-- Prediksi dari model ini dapat digunakan sebagai dasar untuk memutuskan waktu beli atau jual saham TLKM.
-- Namun, investor tetap perlu memperhatikan faktor eksternal (politik, ekonomi, dll) yang tidak tercakup oleh model.
-- Disarankan untuk memperbarui model secara berkala agar tetap relevan dengan kondisi pasar terkini.
+Visualisasi residual memperlihatkan selisih antara nilai prediksi dan aktual. Distribusi yang simetris dan terpusat di nol menandakan prediksi tidak bias.
+
+### 📊 Linear Regression
+![Residual LR](https://github.com/user-attachments/assets/8ee40ffd-2730-42db-af50-624f3c848c25)
+
+### 🌲 Random Forest
+![Residual RF](https://github.com/user-attachments/assets/37a61055-cafa-4e9a-bd6c-1ab73f57ba3e)
+
+### ⚡ XGBoost
+![Residual XGB](https://github.com/user-attachments/assets/3312d501-7995-4100-95c5-eacb877bbdb2)
+
+> **Linear Regression** dan **Random Forest** menunjukkan distribusi error yang lebih simetris dan sempit dibanding XGBoost.
+
+---
+
+## 💡 Insight Bisnis
+
+- **Linear Regression** memberikan performa terbaik dalam hal RMSE dan distribusi residual yang rapat, menandakan stabilitas tinggi.
+- Model ini dapat digunakan sebagai dasar pengambilan keputusan terkait **waktu beli/jual saham TLKM**.
+- **Random Forest** juga layak dipertimbangkan karena memiliki kesalahan absolut (MAE) paling rendah.
+- Namun, **model hanya memanfaatkan data historis**. Faktor eksternal seperti **kondisi ekonomi, politik, dan regulasi** tidak tercakup dalam model.
+- **Rekomendasi:** Lakukan pembaruan dan retraining model secara berkala untuk menjaga relevansi dengan kondisi pasar terkini.
+
