@@ -279,6 +279,65 @@ Visualisasi residual memperlihatkan selisih antara nilai prediksi dan aktual. Di
 
 ---
 
+
+# **Evaluasi Terhadap Business Understanding**
+
+---
+
+## ✅ Problem Statements
+
+1. **Bagaimana memprediksi harga penutupan saham TLKM berdasarkan data historis?**
+
+   Model berhasil dibangun menggunakan data historis harga saham TLKM. Dengan pendekatan supervised learning berbasis regresi, model mampu memprediksi harga penutupan (`Close`) menggunakan fitur-fitur numerik (`Open`, `High`, `Low`, `Adj Close`, `Volume`) yang telah diproses dan direduksi menggunakan PCA.
+
+2. **Model machine learning mana yang paling akurat dalam melakukan prediksi harga saham?**
+
+   Tiga model dievaluasi: **Linear Regression**, **Random Forest**, dan **XGBoost**. Hasil evaluasi menunjukkan bahwa:
+
+   - Linear Regression memiliki **RMSE** terkecil (54.8690).
+   - Random Forest memiliki **MAE** terkecil (38.2549).
+   - Ketiga model memiliki nilai **R² > 0.997**, yang menandakan akurasi sangat tinggi.
+
+   Ini memberi gambaran model mana yang paling layak digunakan sesuai kebutuhan (minim error absolut atau minim error kuadrat).
+
+3. **Bagaimana hasil prediksi tersebut dapat digunakan dalam konteks pengambilan keputusan investasi?**
+
+   Model prediksi dapat digunakan untuk memproyeksikan harga penutupan harian ke depan, yang menjadi acuan investor untuk melakukan aksi jual atau beli. Prediksi yang stabil dan akurat membantu meminimalkan risiko keputusan yang salah.
+
+---
+
+## ✅ Goals
+
+1. **Membangun model machine learning untuk memprediksi harga penutupan (Close) saham TLKM.**
+
+   Seluruh pipeline machine learning telah dijalankan dengan baik, dari preprocessing, PCA, hingga pelatihan dan evaluasi tiga model regresi.
+
+2. **Membandingkan performa tiga model: Linear Regression, Random Forest, dan XGBoost.**
+
+   Ketiga model telah dilatih dan diuji. Performa masing-masing model disajikan dalam bentuk tabel metrik (RMSE, MAE, R²) serta visualisasi prediksi dan residual.
+
+3. **Memberikan insight bisnis dari hasil model sebagai dasar pertimbangan investasi.**
+
+   Insight bisnis disusun berdasarkan performa model, distribusi error, serta interpretasi visualisasi prediksi vs aktual. Hasilnya digunakan untuk menyarankan model terbaik dan mempertimbangkan penggunaannya dalam strategi investasi.
+
+---
+
+## ✅ Solution Statements
+
+1. **Menggunakan tiga algoritma regresi: Linear Regression, Random Forest Regressor, dan XGBoost Regressor.**
+
+   Semua algoritma dijalankan dengan parameter yang sesuai dan digunakan dalam evaluasi performa.
+
+2. **Menggunakan PCA (Principal Component Analysis) untuk reduksi dimensi.**
+
+   PCA digunakan untuk menyederhanakan fitur input menjadi 2 komponen utama yang menjelaskan 90% variansi, yang terbukti cukup kuat untuk prediksi.
+
+3. **Evaluasi model dilakukan menggunakan metrik: RMSE, MAE, dan R².**
+
+   Ketiga metrik ini digunakan dalam evaluasi untuk membandingkan performa prediktif model, dan hasilnya dilaporkan secara menyeluruh.
+
+---
+
 ## 💡 Insight Bisnis
 
 - **Linear Regression** memberikan performa terbaik dalam hal RMSE dan distribusi residual yang rapat, menandakan stabilitas tinggi.
