@@ -73,6 +73,13 @@ print(df.isnull().sum())
 
 """
 
+#Cek data duplikat
+print(df.duplicated().sum())
+
+"""### **Insight**:
+- Tidak ada data duplikat
+"""
+
 # Statistik deskriptif
 print(df.describe())
 
