@@ -47,12 +47,21 @@ Dataset yang digunakan adalah data historis saham PT Telkom Indonesia (TLKM) dar
 ### 🔎 Kondisi Data
 
 **1. Missing Values:**
+```
+# Cek missing value
+print("\nJumlah missing value per kolom:")
+print(df.isnull().sum())
+```
 
 - Terdapat **1 baris** dengan nilai kosong (*missing*) pada **semua kolom numerik** (`Open`, `High`, `Low`, `Close`, `Adj Close`, dan `Volume`).
 - Kolom `Date` **tidak memiliki nilai kosong**.
 - Baris dengan nilai kosong ini akan ditangani pada tahap *data preprocessing*.
 
 **2. Data Duplikat:**
+```
+#Cek data duplikat
+print(df.duplicated().sum())
+```
 
 - Tidak ditemukan baris duplikat dalam dataset.
 
