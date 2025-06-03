@@ -118,7 +118,7 @@ print(df.duplicated().sum())
 
 
 
-## 🧹 Data Preparation
+## Data Preparation
 
 Langkah-langkah berikut dilakukan untuk menyiapkan data sebelum proses pemodelan. Semua teknik disusun sesuai urutan eksekusi di notebook:
 
@@ -170,6 +170,20 @@ X_pca = pca.fit_transform(X_scaled)
 print(f"Jumlah komponen PCA yang dipilih: {pca.n_components_}")
 Jumlah komponen PCA yang dipilih: 2
 ```
+
+### 7. Pembagian Data
+- **Langkah**: Membagi data hasil PCA ke dalam data latih dan data uji dengan rasio 80:20.
+- **Kode**:
+  ```python
+  from sklearn.model_selection import train_test_split
+  X_train, X_test, y_train, y_test = train_test_split(X_pca, y, test_size=0.2, random_state=42)
+  ```
+- **Alasan**: Pembagian ini dilakukan agar model dapat dilatih pada sebagian data dan diuji pada data yang belum pernah dilihat, guna mengevaluasi performa secara objektif.
+
+### 8. Hasil PCA
+- **Output**: Jumlah komponen utama yang dipilih: **`{pca.n_components_}`**
+  `Jumlah komponen PCA yang dipilih: 2`
+- PCA telah mengidentifikasi sejumlah fitur baru (lebih sedikit dari jumlah awal) yang dapat menjelaskan 90% variansi dalam data awal yang telah ditransformasi.
 
 ## Modeling
 Dalam tahap ini, tiga algoritma machine learning digunakan untuk membangun model prediktif terhadap harga penutupan saham (`Close`). Setiap algoritma memiliki kelebihan dan mekanisme kerja yang berbeda. Berikut penjelasannya:
