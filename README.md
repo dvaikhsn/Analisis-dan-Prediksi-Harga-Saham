@@ -75,7 +75,19 @@ print(df.duplicated().sum())
 ## 📊 Exploratory Data Analysis (EDA)
 
 ### 1. Distribusi Harga Saham (`Open`, `High`, `Low`, `Close`)
+```
+# Plot distribusi semua fitur numerik
+features = ['Open', 'High', 'Low', 'Close', 'Volume']
 
+plt.figure(figsize=(15, 10))
+for i, col in enumerate(features):
+    plt.subplot(2, 3, i + 1)
+    sns.histplot(df[col], kde=True, bins=30, color='skyblue')
+    plt.title(f'Distribusi {col}')
+plt.tight_layout()
+plt.show()
+
+```
 ![Distribusi Harga](https://github.com/user-attachments/assets/3f366175-8c40-4ab2-8eb7-979c33bef60d)
 
 - Distribusi dari keempat harga saham (`Open`, `High`, `Low`, `Close`) menunjukkan pola **multimodal**. Hal ini mencerminkan bahwa selama periode pengamatan, harga saham TLKM mengalami beberapa **fase tren berbeda**, kemungkinan akibat faktor ekonomi makro, perubahan regulasi, atau performa perusahaan.
@@ -87,26 +99,74 @@ print(df.duplicated().sum())
 ---
 
 ### 2. Korelasi Antar Fitur Harga
+```
+# Salin dataframe tanpa kolom Date
+df_numerik = df.select_dtypes(include='number')
 
-![Korelasi Harga](https://github.com/user-attachments/assets/eef32346-ff3c-406e-a65a-c5663102601e)
+# Visualisasi korelasi
+plt.figure(figsize=(8, 6))
+sns.heatmap(df_numerik.corr(), annot=True, cmap='coolwarm', fmt=".2f")
+plt.title('Heatmap Korelasi Fitur Numerik')
+plt.show()
+```
+![image](https://github.com/user-attachments/assets/3fcb8979-f044-43d7-8b2d-96703d8aa388)
 
-- Terdapat **korelasi sangat tinggi (hampir sempurna)** antara fitur-fitur harga (`Open`, `High`, `Low`, `Close`, dan `Adj Close`), terlihat dari scatter plot yang membentuk garis diagonal rapat.
-- Histogram pada diagonal plot kembali menunjukkan **distribusi multimodal**, konsisten dengan analisis sebelumnya.
-- **Implikasi untuk modeling:**
-  - Karena fitur-fitur harga sangat berkorelasi, cukup menggunakan salah satu fitur sebagai representasi harga. Biasanya, **`Close` price** dipilih karena paling umum digunakan sebagai acuan harga akhir harian.
-  - Reduksi fitur (feature selection) bisa membantu menghindari multikolinearitas dalam model.
+- Terdapat **korelasi yang sangat kuat (mendekati 1.00)** antar harga saham (`Open`, `High`, `Low`, `Close`, `Adj Close`), menandakan bahwa pergerakan harga harian saling mengikuti secara konsisten.
+- Korelasi `Adj Close` terhadap `Close` sebesar **0.98**, cukup tinggi meski sedikit lebih rendah — ini bisa terjadi karena penyesuaian tertentu pada data historis.
+- **Volume tidak berkorelasi signifikan** dengan fitur harga (korelasi mendekati 0). Artinya, **volume perdagangan harian tidak banyak mempengaruhi harga harian secara langsung**, atau ada faktor lain yang lebih dominan.
+- Kesimpulan: karena fitur harga sangat berkorelasi satu sama lain, **pemilihan satu fitur harga (misalnya `Close`) sudah cukup mewakili pergerakan harga untuk modeling**.
+
 
 ---
 
-### 3. Distribusi Volume Perdagangan
+### 3. Pairplot Fitur Harga Saham
+```
+# Pairplot fitur harga
+sns.pairplot(df[['Open', 'High', 'Low', 'Close']])
+plt.suptitle('Pairplot Fitur Harga Saham', y=1.02)
+plt.show()
+```
+![image](https://github.com/user-attachments/assets/febbadeb-780a-42d6-ad08-a5eedc8b6298)
 
-![Distribusi Volume](https://github.com/user-attachments/assets/282055b3-7ab2-49c2-8c50-e9a8224d3d36)
+- Terlihat hubungan **linear sangat kuat** antara fitur-fitur harga saham (`Open`, `High`, `Low`, `Close`) — konsisten dengan hasil korelasi sebelumnya.
+- Penyebaran data pada scatter plot membentuk garis diagonal rapat, menandakan bahwa nilai-nilai harga bergerak sangat beriringan antar fitur.
+- Distribusi pada histogram diagonal (untuk masing-masing fitur) kembali menunjukkan **pola multimodal**, menguatkan asumsi bahwa terdapat beberapa periode atau fase harga yang berbeda dalam data historis TLKM.
+- **Implikasi untuk pemodelan:** karena fitur saling berkorelasi tinggi, **menggunakan salah satu dari fitur tersebut, seperti `Close`, sudah cukup merepresentasikan dinamika harga untuk prediksi ke depan**.
 
-- Distribusi `Volume` perdagangan bersifat **right-skewed (skewed ke kanan)**:
-  - Sebagian besar volume perdagangan berada pada kisaran rendah hingga menengah.
-  - Terdapat **outlier** berupa hari-hari dengan volume perdagangan yang jauh lebih tinggi dibanding rata-rata.
-- **Korelasi antara `Volume` dan harga relatif lemah**, menunjukkan bahwa lonjakan volume tidak selalu beriringan dengan perubahan harga.
-- **Outlier pada `Volume`** bisa menjadi indikator adanya peristiwa tidak biasa di pasar, seperti aksi korporasi, berita besar, atau tekanan beli/jual yang ekstrem.
+
+### 4. Scatterplot volume vs close
+```
+# Scatterplot volume vs close
+plt.figure(figsize=(8, 5))
+sns.scatterplot(x='Volume', y='Close', data=df, alpha=0.5)
+plt.title('Volume vs Harga Close')
+plt.xlabel('Volume')
+plt.ylabel('Harga Close')
+plt.show()
+```
+![image](https://github.com/user-attachments/assets/5fa14ecb-d6b4-4fc0-9ba5-619c070861fe)
+
+- Scatter plot menunjukkan tidak adanya pola yang jelas antara volume dan harga close.
+
+- Banyak titik terakumulasi di volume rendah, dengan sebaran harga yang cukup merata, dan beberapa outlier volume tinggi tidak menunjukkan hubungan signifikan.
+
+
+### 5. Deteksi outlier
+```
+plt.figure(figsize=(15, 8))
+for i, col in enumerate(features):
+    plt.subplot(2, 3, i + 1)
+    sns.boxplot(x=df[col], color='salmon')
+    plt.title(f'Boxplot {col}')
+plt.tight_layout()
+plt.show()
+```
+![image](https://github.com/user-attachments/assets/55b91ed4-5171-4306-a49e-eea39fc10583)
+
+- Harga (Open, High, Low, Close) memiliki distribusi yang cukup simetris dan tidak menunjukkan banyak outlier.
+
+- Volume menampilkan banyak outlier (titik-titik jauh dari box utama), mengindikasikan bahwa terdapat beberapa hari dengan volume perdagangan yang tinggi dibanding hari-hari lainnya.
+
 
 ---
 
